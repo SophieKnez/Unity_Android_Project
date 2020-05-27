@@ -15,28 +15,34 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rigidbody;
     private Vector2 prevPos;
     private SpriteRenderer sprite;
+    private ParticleSystem particles;
 
     private bool canBlast = true;
     private bool hasChangedColor = false;
+
+    ParticleSystem.MainModule main;
+
 
 
     void Start()
     {
         rigidbody = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
+        particles = GetComponentInChildren<ParticleSystem>();
 
+        main = particles.main;
         speed = minSpeed;
     }
 
 
     private void FixedUpdate()
     {
-        MovePlayerWithSwipe();
-        StopIfFingerDown();
-        ChangeColorOnWallHit();
-        ResetVelocityIfHitWall();
+        MovePlayerWithSwipe();//move player in the direction of the swipe
+        StopIfFingerDown();//stop moving if currently tapping
+        ChangeColorOnWallHit();//change color if switch direction or hit a wall
+        ResetVelocityIfHitWall();//reset the velocity to be the minimum speed if switched direction or hit a wall
 
-        prevPos = transform.position;
+        prevPos = transform.position;//set previous position
     }
 
     void MovePlayerWithSwipe()   
@@ -80,6 +86,8 @@ public class PlayerMovement : MonoBehaviour
             if (!hasChangedColor)
             {
                 sprite.color = GetRandomColor();
+                main.startColor = sprite.color;//set particles to same color
+                
                 hasChangedColor = true;
             }
         }
