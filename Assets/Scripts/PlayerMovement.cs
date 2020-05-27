@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]
+    [SerializeField] private float acceleration, minSpeed, maxSpeed;
     private float speed;
 
     [SerializeField] public InputState input;
@@ -24,17 +24,29 @@ public class PlayerMovement : MonoBehaviour
     {
         rigidbody = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
+
+        speed = minSpeed;
     }
+
 
     private void FixedUpdate()
     {
         MovePlayerWithSwipe();
         StopIfFingerDown();
-        CheckForColorChange();     
+        ChangeColorOnWallHit();
+        ResetVelocityIfHitWall();
+
+        prevPos = transform.position;
     }
+
     void MovePlayerWithSwipe()   
     {
+        //set pos via velocity
         rigidbody.velocity = input.SwipeDir * speed;
+
+        //increase speed;
+        if (speed < maxSpeed)
+            speed += acceleration;
     }
 
     void StopIfFingerDown()
@@ -45,22 +57,39 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void CheckForColorChange()
+    /// <summary>
+    /// returns whether cube is moving or not
+    /// </summary>
+    bool hasStoppedMoving()
     {
-        if (!input.IsFingerDown())
+        Vector2 pos = transform.position;
+
+        if (prevPos == pos)//
+            return true;
+        else
+            return false;        
+    }
+
+    /// <summary>
+    /// if has hit a wall, change color of sprite
+    /// </summary>
+    private void ChangeColorOnWallHit()
+    {                                                           
+        if (hasStoppedMoving() && !input.IsFingerDown())//if it's not because of tappin           
         {
-            Vector2 pos = transform.position;
-
-            if (prevPos == pos && !hasChangedColor)//if isn't moving (Hit a wall) change color
+            if (!hasChangedColor)
             {
-                hasChangedColor = true;
                 sprite.color = GetRandomColor();
+                hasChangedColor = true;
             }
-            else if (prevPos != pos)//if moving again, can change color
-                hasChangedColor = false;
         }
+        else hasChangedColor = false;//set has changed to false once moving again
+    }
 
-        prevPos = transform.position;
+    private void ResetVelocityIfHitWall()
+    {
+        if (hasStoppedMoving())
+            speed = minSpeed;
     }
     
     /// <summary>
