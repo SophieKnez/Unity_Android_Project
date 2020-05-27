@@ -23,7 +23,7 @@ public class KeepPlayerOnScreen : MonoBehaviour
         movementRangeMin = bottomLeftWorldCoordinates + renderer.bounds.extents;//this is our minimum 
         movementRangeMax = topRightWorldCoordinates - renderer.bounds.extents;//this is our maximum
     }
-    void Update ()
+    void LateUpdate ()
     {
         onScreenPos = transform.position;
         onScreenPos.x = Mathf.Clamp(transform.position.x, movementRangeMin.x, movementRangeMax.x);
